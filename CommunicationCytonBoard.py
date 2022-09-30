@@ -47,16 +47,20 @@ def Init_CytonBoard():
     print('EEG channels:')
     print(eeg_chan)
     
+    return board
+
+def defineStreamInfo(board):
     #Define Stream Info for EEG-Data
     name = 'OpenBCIEEG'
     ID = 'OpenBCIEEG'
     channels = 8
-    sample_rate = 250
+    label_name = ["FC5", "FC1", "FC2", "FC6", "C3", "C4", "--", "--"]
+    sample_rate = board.get_sampling_rate(BoardIds.CYTON_BOARD.value)
     datatype = 'float32'
     streamType = 'EEG'
     print(f"Creating stream for EEG. \nName: {name}\nID: {ID}\n")
     ### Stream Info Objekt erstellen
-    info_eeg = StreamInfo(name, streamType, channels, srate, datatype, ID)
+    info_eeg = StreamInfo(name, streamType, channels, sample_rate, datatype, ID)
     chns = info_eeg.desc().append_child("channels")
     ### Kanäle und Label zueinander zuweisen
     for label in label_name:
@@ -64,6 +68,78 @@ def Init_CytonBoard():
         ch.append_child_value("label", label)
     outlet_eeg = StreamOutlet(info_eeg)
     
+    return outlet_eeg
     
-def record_data():
+def record_EEGData():
+    board = Init_CytonBoard()
+    outlet_eeg = defineStreamInfo(board)
     
+    ###########################
+    # Start Setting Streaming #
+    ###########################
+    
+    eegchunk = []
+    
+    ##################
+    # Setting Window #
+    ##################
+    
+    window_menu.close()
+    window_testing = make_window_testing()
+           
+    ###################
+    # Start Algorithm #
+    ###################
+    
+    ###EEG-Daten abrufen
+    while True:            
+        # Getting data from Cyton Board
+        ### Abfrage der GUI
+        event_testing, values_testing = window_testing.read(timeout=4)
+        ### Daten einlesen in Variable data --> aus Ringbuffer Objekt
+        data = board.get_board_data() 
+        
+        # Stop Streaming
+        ### Wenn Test-EEG 40 Sekunden lang ist oder das Fenster geschlossen wird
+        ### Verarbeitung der Daten
+        if event_testing == sg.WIN_CLOSED or len(eegchunk) > 10000:
+            ### Datenstream beenden
+            board.stop_stream()
+            ### Alle Ressourcen releasen
+            board.release_session()  
+            
+            # Plot data
+            ### Daten plotten, EEG aus Kanal über Länge des Kanals plotten +
+            ### Kanallabel --> Legende
+            test_data = processing_testsession(eegchunk)
+            for i in range(0,6):
+                plt.plot(range(0, len(test_data[i])),test_data[i], label=label_name[i])
+            plt.legend()
+            plt.show()
+            
+            event_testing = None
+            window_testing.close()
+            window_menu = make_window_menu()
+            event_menu, values_menu = window_menu.read()
+
+            break
+        
+        
+        # Work with the data from Cyton Board
+        ### EEG-Daten der unterschiedlichen Channels aus eeg_data abgreifen
+        ### und in eegchunk abspeichern
+        ### Wenn eine bestimmte Zeit vergangen ist, werden die Daten abgerufen
+        elif event_testing == sg.TIMEOUT_KEY:            
+            # don't send empty data
+            if len(data[0]) < 1 : continue
+            ### EEG-Daten für die einzelnen Channels aus data abgreifen
+            eeg_data = data[eeg_chan]
+            
+            print(len(eegchunk))
+            
+            print('------------------------------------------------------------------------------------------')
+            
+            ### in range (len)????
+            for i in range(len(eeg_data[0])):
+                eegchunk.append((eeg_data[:,i]).tolist())
+            outlet_eeg.push_chunk(eegchunk)
