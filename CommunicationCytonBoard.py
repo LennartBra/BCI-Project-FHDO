@@ -3,7 +3,7 @@
 Created on Tue Sep 27 2022
 
 @author: Lennart Brakelmann
-Class for Getting Data
+Class for Communication with CytonBoard
 """
 ###############################################################################
 #################################Import Packages###############################
@@ -15,6 +15,7 @@ import brainflow
 import random
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
+import GUI
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from pylsl import StreamInfo, StreamOutlet
@@ -47,7 +48,7 @@ def Init_CytonBoard():
     print('EEG channels:')
     print(eeg_chan)
     
-    return board
+    return board,eeg_chan
 
 def defineStreamInfo(board):
     #Define Stream Info for EEG-Data
@@ -69,7 +70,15 @@ def defineStreamInfo(board):
     outlet_eeg = StreamOutlet(info_eeg)
     
     return outlet_eeg
+
+def stopDataStream(board):
+    ### Datenstream beenden
+    board.stop_stream()
+    ### Alle Ressourcen releasen
+    board.release_session()
     
+
+'''
 def record_EEGData():
     board = Init_CytonBoard()
     outlet_eeg = defineStreamInfo(board)
@@ -143,3 +152,5 @@ def record_EEGData():
             for i in range(len(eeg_data[0])):
                 eegchunk.append((eeg_data[:,i]).tolist())
             outlet_eeg.push_chunk(eegchunk)
+            
+'''

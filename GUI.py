@@ -9,21 +9,42 @@ import keyboard
 import numpy as np
 import random
 import PySimpleGUI as sg
-import matplotlib.pyplot as plt
 
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from pylsl import StreamInfo, StreamOutlet
-from scipy import signal
 
+global path,start,right,left,test
+#%% Start Algorithm
+###############################################################################
+############################### Start Settings ################################
+###############################################################################
+def init_settings():
+    global path,start,right,left,test
+    path = "C:/Biomedizinische Informationstechnik/BCI-Projekt Arbeit/Code/BachelorarbeitTobias/Bilder/Experiment"
+    start = "Anfang.png" 
+    right = ["Rechts1.png",
+             "Rechts2.png",
+             "Rechts3.png",
+             "Rechts4.png"] 
+    left = ["Links1.png",
+            "Links2.png",
+            "Links3.png",
+            "Links4.png"] 
+    test = ["Test_Ruhe0.png",
+            "Test_Ruhe1.png",
+            "Test_Ruhe2.png",
+            "Test_Ruhe3.png",
+            "Test_Aktion.png"]
+
+#%% Create Layouts
 #################################################
 #################### Layouts ####################
 #################################################
-#%% Create Layouts
-
+    
 #Create Main Window Layout
 def make_window_menu():
     layout = [    
        [sg.Button("Testaufnahme")],
+       [sg.Button("Trainingsaufnahme")],
+       [sg.Button("Klassifikationsaufnahme")],
        [sg.Button("EXIT")]
        ]
     window = sg.Window("Training endmode", layout)
@@ -32,9 +53,9 @@ def make_window_menu():
 
 
 #Create Layout for Test Sequence
-def make_window_testing():
+def make_testsequence_window_():
     layout = [
-        [sg.Image(path+sleep_img)]
+        [sg.Image(path+start)]
         ]    
     window = sg.Window("Testaufnahme", layout).Finalize()
     window.Maximize()
@@ -42,28 +63,11 @@ def make_window_testing():
     return window
 
 
-#%% Start Algorithm
-###############################################################################
-############################### Start Settings ################################
-###############################################################################
-path = "C:\Biomedizinische Informationstechnik\BCI-Projekt Arbeit\Code\BachelorarbeitTobias\Bilder"
-sleep_img = "Anfang.png" 
-right = ["Rechts1.png",
-        "Rechts2.png",
-        "Rechts3.png",
-        "Rechts4.png"] 
-left = ["Links1.png",
-        "Links2.png",
-        "Links3.png",
-        "Links4.png"] 
-test = ["Test_Ruhe0.png",
-        "Test_Ruhe1.png",
-        "Test_Ruhe2.png",
-        "Test_Ruhe3.png",
-        "Test_Aktion.png"]
-###############################################################################
-############################### Start Algorithm ###############################
-###############################################################################        
-
-window_menu = make_window_menu()
-event_menu, values_menu = window_menu.read()
+def make_trainingsession_window():
+    ###Missing Code
+    a=1
+    
+def make_classificationsession_window():
+    ### Missing Code
+    a=1
+    
