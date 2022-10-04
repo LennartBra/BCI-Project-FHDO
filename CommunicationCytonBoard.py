@@ -15,7 +15,6 @@ import brainflow
 import random
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
-import GUI
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from pylsl import StreamInfo, StreamOutlet
@@ -31,7 +30,7 @@ def Init_CytonBoard():
     #Create BrainFlowInputParams Object
     params = BrainFlowInputParams()
     #Define Serial Port
-    params.serial_port = 'COM3'
+    params.serial_port = 'COM5'
     #Initialize CytonBoard with Parameters
     board = BoardShim(BoardIds.CYTON_BOARD.value, params)
     #Get Sampling Rate

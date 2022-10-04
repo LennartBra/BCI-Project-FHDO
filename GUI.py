@@ -53,7 +53,7 @@ def make_window_menu():
 
 
 #Create Layout for Test Sequence
-def make_testsequence_window_():
+def make_testsequence_window():
     layout = [
         [sg.Image(path+start)]
         ]    
