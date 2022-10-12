@@ -3,6 +3,7 @@
 Created on Tue Sep 27 2022
 
 @author: Lennart Brakelmann
+Class for GUI
 """
 #%%Import Package
 import PySimpleGUI as sg
@@ -29,6 +30,7 @@ class GUI:
                 "Test_Ruhe2.png",
                 "Test_Ruhe3.png",
                 "Test_Aktion.png"]
+        self.logo = "C:/Biomedizinische Informationstechnik/BCI-Projekt Arbeit/Code/BachelorarbeitTobias/Bilder/ExperimentFHDoLogo.png"
     
     #%% Create Layouts
     #################################################
@@ -37,22 +39,22 @@ class GUI:
         
     #Create Main Window Layout
     def make_window_menu(self):
-        layout = [    
-           [sg.Button("Test Sequence EEG")],
-           [sg.Button("Test Sequence PPG")],
-           [sg.Button("Training Session")],
-           [sg.Button("Classification Session")],
-           [sg.Button("EXIT")]
+        layout = [
+           [sg.Text("Please choose a Session:",background_color="white",text_color="black")],
+           [sg.Button("Test Sequence EEG",button_color="orange",size=(30,2))],
+           [sg.Button("Test Sequence PPG",button_color="orange",size=(30,2))],
+           [sg.Button("Training Session",button_color="orange",size=(30,2))],
+           [sg.Button("Classification Session",button_color="orange",size=(30,2))],
+           [sg.Button("EXIT",button_color="red",size=(30,2))]
            ]
-        window = sg.Window("Main Window", layout)
+        window = sg.Window("Main Window", layout,background_color="white")
         
         return window
-    
-    
+     
     #Create Layout for Test Sequence
     def make_testsequence_window_eeg(self):
         layout = [
-            [sg.Image(self.path+self.start,key='-IMAGE-')]
+            [sg.Image(self.path+self.start,key='-EEG-')]
             ]    
         window = sg.Window("Test Sequence EEG", layout).Finalize()
         window.Maximize()
@@ -61,7 +63,7 @@ class GUI:
     
     def make_testsequence_window_ppg(self):
         layout = [
-            [sg.Image(self.path+self.start)]
+            [sg.Image(self.path+self.start,key='PPG')]
             ]    
         window = sg.Window("Test Sequence PPG", layout).Finalize()
         window.Maximize()
