@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Oct 1 2022
-
-@author: Lennart Brakelmann
-Script for Data Acquisition
+Main script for Data Acquisition
 """
 #Import Packages
 import numpy as np
@@ -48,7 +45,7 @@ while True:
         break
   
     if event_menu == "Test Sequence EEG":
-        #Initialize Cyton Board
+        #Initialize Cyton Board and get channels
         CytonBoard, eeg_chan, ppg_chan = CCB.Init_CytonBoard()
         #Start Data Stream
         CCB.startDataStream(CytonBoard,"EEG")
@@ -83,16 +80,16 @@ while True:
                 event_menu, values_menu = window_menu.read()
                 
                 EEG = np.array(EEG)
-                EEG = np.moveaxis(EEG,0,1)
+                EEG = np.transpose(EEG)
                 
                 break
             
-            if len(EEG) > 2000:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.test[1])
-            if len(EEG) > 2250:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.test[2])
-            if len(EEG) > 2500:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.test[3])
+            if len(EEG) > 4250:
+                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[3])
+            if len(EEG) > 4500:
+                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[2])
+            if len(EEG) > 4750:
+                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[1])
                 
             #Load data from Ringbuffer
             if buffer_count > 50:
@@ -104,8 +101,8 @@ while True:
                 #Save eegchunk in EEG
                 EEG = process_eegchunk(eegchunk,EEG)
                 
-    if event_menu == "Test Sequence PPG":        
-        #Initialize Cyton Board
+    if event_menu == "Test Sequence PPG":     
+        #Initialize Cyton Board and get channels
         CytonBoard, eeg_chan, ppg_chan = CCB.Init_CytonBoard()
         
         #Start Data Stream
@@ -139,13 +136,22 @@ while True:
                 window_testsequence_ppg.close()
                 #Make PPG NumPy Array
                 PPG = np.array(PPG)
-                PPG = np.moveaxis(PPG,0,1)
+                PPG = np.transpose(PPG)
+                #Invert PPG
+                PPG = -PPG
                 #Create Main Window
                 window_menu = GUI.make_window_menu()
                 event_menu, values_menu = window_menu.read()
                 
                 
                 break
+            
+            if len(PPG) > 1750:
+                window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[3])
+            if len(PPG) > 2000:
+                window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[2])
+            if len(PPG) > 2250:
+                window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[1])
                 
             #Load data from Ringbuffer
             if buffer_count > 50:
@@ -153,21 +159,36 @@ while True:
                 data = CytonBoard.get_board_data()
                 #Load data Chunk into eegchunk
                 ppgchunk = data[ppg_chan]
-                
-                #print("Laenge Chunk",len(ppgchunk[0]),"Buffer Count",buffer_count)
+
                 #Save ppgchunk in PPG
                 PPG = process_ppgchunk(ppgchunk,PPG)
-            
-            
+
+
+
+    if event_menu == "Training Session": 
+        #Close Main Window
+        window_menu.close()
+        sg.popup("Error: not implemented yet",background_color="white",button_color="orange",text_color="black")
+        break
+    if event_menu == "Classification Session": 
+        #Close Main Window
+        window_menu.close()
+        sg.popup("Error: not implemented yet",background_color="white",button_color="orange",text_color="black")
+        break
+
+
 
 #%%Plot anfertigen
-#channels = ["FC5", "FC1", "FC2", "FC6", "C3", "C4", "--", "--"]
-#EEG_TestAufnahme = Data(EEG,channels)
-#EEG_TestAufnahme.plot_EEG_data()
+if len(EEG)>0:
+    channels = ["FC5", "FC1", "FC2", "FC6", "C3", "C4", "--", "--"]
+    EEG_TestAufnahme = Data(EEG,channels)
+    EEG_TestAufnahme.plot_EEG_data()
 
-channels = ["19","20","21"]
-PPG_TestAufnahme = Data(PPG,channels)
-PPG_TestAufnahme.filterPPG()
-PPG_TestAufnahme.plot_PPG_datatest()
+#%%Plot anfertigen PPG
+#if len(PPG)>0:
+    #channels = ["19","20","21"]
+    #PPG_TestAufnahme = Data(PPG,channels)
+    #PPG_TestAufnahme.filterPPG()
+    #PPG_TestAufnahme.plot_PPG_datatest()
 
 
