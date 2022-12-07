@@ -4,7 +4,6 @@ Class for Data - Process data
 """
 #%% Import Packages
 import matplotlib.pyplot as plt
-import numpy as np
 from scipy import signal
 
 
@@ -21,13 +20,17 @@ class Data:
     def plot_EEG_data(self):
         for i in range(0,len(self.data[:,])):
             plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+        plt.xlabel('Sample')
+        plt.ylabel('Voltage in mV')
         plt.legend()
         plt.show()
     
     #Define function to plot PPG data
     def plot_PPG_data(self):
-        for i in range(0,len(self.data[:,])):
-            plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+        i = 1
+        plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+        plt.xlabel('Sample')
+        plt.ylabel('Absorption of light')
         plt.legend()
         plt.show()
     
@@ -43,16 +46,22 @@ class Data:
     #Define Function to filter PPG
     def filterPPG(self):
         order = 9
-        CutOffF = 5
+        CutOffF = 15
         SampleRate = 250
         b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
         PPG_filtered = signal.lfilter(b,a,self.data[1])
         self.data[1] = PPG_filtered
-
-     #Test Function   
-    def plot_PPG_datatest(self):
-        i=1
-        plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+        
+        
+        
+        
+        
+        #Define function to plot all PPG channels
+    def plot_PPG_data_AllChannels(self):
+        for i in range(0,len(self.data[:,])):
+            plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+        plt.xlabel('Sample')
+        plt.ylabel('Absorption of light')
         plt.legend()
         plt.show()
         

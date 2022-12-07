@@ -11,8 +11,7 @@ class GUI:
     
     #Create GUI Object with Pictures as attributes
     def __init__(self):        
-        self.path = "C:/Biomedizinische Informationstechnik/BCI-Projekt Arbeit/BCIProjectCode/Pictures/"
-        #self.path = "Pictures/"
+        self.path = "Pictures/"
         self.play = ["Play.png",
                      "PlaySign1.png",
                      "PlaySign2.png",
@@ -50,7 +49,7 @@ class GUI:
     #Create Layout for PPG Test Sequence
     def make_testsequence_window_ppg(self):
         layout = [
-            [sg.Image(self.path+self.play[0],key='PPG')]
+            [sg.Image(self.path+self.play[0],key='-PPG-')]
             ]    
         window = sg.Window("Test Sequence PPG", layout).Finalize()
         

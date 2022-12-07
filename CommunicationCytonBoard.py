@@ -12,7 +12,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 ###################################Communication###############################
 ###############################################################################
 
-def Init_CytonBoard():
+def init_CytonBoard():
     #Activate BrainFlow Logger
     BoardShim.enable_dev_board_logger()
     #Create BrainFlowInputParams Object

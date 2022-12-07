@@ -32,7 +32,6 @@ GUI = GUI()
 window_menu = GUI.make_window_menu()
 event_menu, values_menu = window_menu.read()
 
-
 ###############################################################################
 ################################Check GUI Status###############################
 ###############################################################################
@@ -46,7 +45,7 @@ while True:
   
     if event_menu == "Test Sequence EEG":
         #Initialize Cyton Board and get channels
-        CytonBoard, eeg_chan, ppg_chan = CCB.Init_CytonBoard()
+        CytonBoard, eeg_chan, ppg_chan = CCB.init_CytonBoard()
         #Start Data Stream
         CCB.startDataStream(CytonBoard,"EEG")
         
@@ -103,7 +102,7 @@ while True:
                 
     if event_menu == "Test Sequence PPG":     
         #Initialize Cyton Board and get channels
-        CytonBoard, eeg_chan, ppg_chan = CCB.Init_CytonBoard()
+        CytonBoard, eeg_chan, ppg_chan = CCB.init_CytonBoard()
         
         #Start Data Stream
         CCB.startDataStream(CytonBoard,"PPG")
@@ -163,13 +162,12 @@ while True:
                 #Save ppgchunk in PPG
                 PPG = process_ppgchunk(ppgchunk,PPG)
 
-
-
     if event_menu == "Training Session": 
         #Close Main Window
         window_menu.close()
         sg.popup("Error: not implemented yet",background_color="white",button_color="orange",text_color="black")
         break
+    
     if event_menu == "Classification Session": 
         #Close Main Window
         window_menu.close()
@@ -179,16 +177,21 @@ while True:
 
 
 #%%Plot anfertigen
-if len(EEG)>0:
-    channels = ["FC5", "FC1", "FC2", "FC6", "C3", "C4", "--", "--"]
-    EEG_TestAufnahme = Data(EEG,channels)
-    EEG_TestAufnahme.plot_EEG_data()
+#if len(EEG)>0:
+#    channels = ["FC5", "FC1", "FC2", "FC6", "C3", "C4", "--", "--"]
+#    EEG_TestAufnahme = Data(EEG,channels)
+#    EEG_TestAufnahme.plot_EEG_data()
 
-#%%Plot anfertigen PPG
-#if len(PPG)>0:
-    #channels = ["19","20","21"]
-    #PPG_TestAufnahme = Data(PPG,channels)
-    #PPG_TestAufnahme.filterPPG()
-    #PPG_TestAufnahme.plot_PPG_datatest()
 
+#%%Process PPG Data
+channels = ["19","PPG","21"]
+PPG_TestSequence = Data(PPG,channels)
+PPG_TestSequence.filterPPG()
+PPG_TestSequence.plot_PPG_data()
+
+
+
+
+#%% Test
+#PPG_TestAufnahme.plot_PPG_data()
 
