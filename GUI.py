@@ -55,4 +55,23 @@ class GUI:
         
         return window
     
+    #Create Layout for EEG Training Session
+    def make_training_window_instructions_eeg(self):
+        layout = [
+           [sg.Text("Instructions:",background_color="white",text_color="black")],
+           [sg.Text("The ...",background_color="white",text_color="black")],
+           [sg.Button("Start Training Session",button_color="orange",size=(30,2))],
+           ]
+        window = sg.Window("Training Session EEG - Instructions", layout).Finalize()
+        
+        return window
+
+    #Create Layout for EEG Training Session
+    def make_training_window_eeg(self):
+        layout = [
+            [sg.Image(self.path+self.play[0],key='-EEG-Training-')]
+            ]    
+        window = sg.Window("Training Session EEG - Recording", layout).Finalize()
+        
+        return window
         

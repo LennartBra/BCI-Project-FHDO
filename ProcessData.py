@@ -65,3 +65,5 @@ class Data:
         plt.legend()
         plt.show()
         
+        
+    #Funktionen für das maschinelle Lernen
