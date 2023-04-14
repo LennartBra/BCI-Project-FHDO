@@ -2,7 +2,17 @@
 """
 Main script for Data Acquisition
 """
-#%% Functions    
+
+#%% Start Algorithm - Create GUI
+#Import Packages
+import numpy as np
+from GUI import GUI
+from ProcessData import Data
+import CommunicationCytonBoard as CCB
+import PySimpleGUI as sg
+import matplotlib.pyplot as plt
+
+#Functions for processing  
 def process_eegchunk(eegchunk,EEG):
     for i in range(len(eegchunk[0])):
         #Load new data to list
@@ -14,17 +24,6 @@ def process_ppgchunk(ppgchunk,PPG):
         #Load new data to list
         PPG.append((ppgchunk[:,i]).tolist())
     return PPG
-
-
-
-#%% Start Algorithm - Create GUI
-#Import Packages
-import numpy as np
-from GUI import GUI
-from ProcessData import Data
-import CommunicationCytonBoard as CCB
-import PySimpleGUI as sg
-import matplotlib.pyplot as plt
 
 #Create Object of Class GUI
 GUI = GUI()
@@ -211,25 +210,36 @@ while True:
                 EEG = process_eegchunk(eegchunk,EEG)
                 EEG_temp = process_eegchunk(eegchunk,EEG_temp)
                 
+            
+            #Even Numbers --> Left Hand, Odd Numbers --> Right Hand
             if len(EEG_temp) > OneSec*4:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[3])
+                if n % 2 == 0:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[3])
+                else:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[6])
             if len(EEG_temp) > OneSec*5:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[2])
+                if n % 2 == 0:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[2])
+                else:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[5])
             if len(EEG_temp) > OneSec*6:
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[1])
+                if n % 2 == 0:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[1])
+                else:
+                    training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[4])
             if len(EEG_temp) > OneSec*7:
                 if TimeStampCheck == False:
                     time_stamps.append(len(EEG))
-                    TimeStampCheck == True
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[0])
+                    TimeStampCheck = True
+                training_window["-EEG-Training-"].update(filename=GUI.path+GUI.training[0])
             if len(EEG_temp) > OneSec*7 + OneSec*2:
                 EEG_temp = []
-                window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.stop[0])
-                TimeStampCheck = False
+                training_window["-EEG-Training-"].update(filename=GUI.path+GUI.pause[0])
                 n = n+1
-                
+                TimeStampCheck = False
+            
         
-            if event_training_window == sg.WIN_CLOSED or n == 9:
+            if event_training_window == sg.WIN_CLOSED or n == 10:
                 #Stop Data Stream
                 CCB.stopDataStream(CytonBoard)
                 #Reset event_testsequence 

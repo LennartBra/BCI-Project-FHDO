@@ -17,8 +17,18 @@ class GUI:
                      "PlaySign2.png",
                      "PlaySign3.png"]
         self.stop = ["StopSign.png",
-                "StopSign2.png",
-                "StopSign3.png"]
+                     "StopSign2.png",
+                     "StopSign3.png"]
+        self.training = ["TrainingSignMove.png",
+                         "TrainingSign1Left.png",
+                         "TrainingSign2Left.png",
+                         "TrainingSign3Left.png",
+                         "TrainingSign1Right.png",
+                         "TrainingSign2Right.png",
+                         "TrainingSign3Right.png",
+                         "PrepareForRecording.png"]
+        self.pause = ["PauseSign.png"]
+        
     #################################################
     #################### Layouts ####################
     #################################################
@@ -59,7 +69,8 @@ class GUI:
     def make_training_window_instructions_eeg(self):
         layout = [
            [sg.Text("Instructions:",background_color="white",text_color="black")],
-           [sg.Text("The ...",background_color="white",text_color="black")],
+           [sg.Text("The training session will be used to train the machine learning algorithm. In this case the LinearDiscriminantAnalysis will be used as the classifier. During the training session you will be asked to fullfill the following steps."
+                    ,background_color="white",text_color="black")],
            [sg.Button("Start Training Session",button_color="orange",size=(30,2))],
            ]
         window = sg.Window("Training Session EEG - Instructions", layout).Finalize()
@@ -69,7 +80,7 @@ class GUI:
     #Create Layout for EEG Training Session
     def make_training_window_eeg(self):
         layout = [
-            [sg.Image(self.path+self.play[0],key='-EEG-Training-')]
+            [sg.Image(self.path+self.training[7],key='-EEG-Training-')]
             ]    
         window = sg.Window("Training Session EEG - Recording", layout).Finalize()
         
