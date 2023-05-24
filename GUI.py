@@ -27,7 +27,12 @@ class GUI:
                          "TrainingSign2Right.png",
                          "TrainingSign3Right.png",
                          "PrepareForRecording.png"]
+        self.test = ["TrainingSignMove.png",
+                         "TestSign1.png",
+                         "TestSign2.png",
+                         "TestSign3.png"]
         self.pause = ["PauseSign.png"]
+        self.instructions = ["Instructions_cut.png"]
         
     #################################################
     #################### Layouts ####################
@@ -69,11 +74,27 @@ class GUI:
     def make_training_window_instructions_eeg(self):
         layout = [
            [sg.Text("Instructions:",background_color="white",text_color="black")],
-           [sg.Text("The training session will be used to train the machine learning algorithm. In this case the LinearDiscriminantAnalysis will be used as the classifier. During the training session you will be asked to fullfill the following steps."
-                    ,background_color="white",text_color="black")],
+           [sg.Text("The training session will be used to generate training data for the machine learning algorithm. During the training process you have the task to make a clench with your right and your left hand alternately. Once you press the Button below, the recording session",background_color="white",text_color="black")],
+           [sg.Text("starts and then you have 4 seconds to prepare for the recording session. After the preparation phase a countdown appears and at the end of the countdown you will be asked to make a clench with the predetermined hand. You have two seconds to perform the",background_color="white",text_color="black")],
+           [sg.Text("clench with your hand. After each clench you get a pause of 4 seconds and then the next countdown starts. The GUI always visualizes which hand you have to use to make the clench. In the pictures below you can see an example of the visualization in the GUI.",background_color="white",text_color="black")],
+           [sg.Image(self.path+self.instructions[0])],
            [sg.Button("Start Training Session",button_color="orange",size=(30,2))],
            ]
         window = sg.Window("Training Session EEG - Instructions", layout).Finalize()
+        
+        return window
+    
+    #Create Layout for EEG Classification Session
+    def make_classification_window_instructions_eeg(self):
+        layout = [
+           [sg.Text("Instructions:",background_color="white",text_color="black")],
+           [sg.Text("The training session will be used to generate training data for the machine learning algorithm. During the training process you have the task to make a clench with your right and your left hand alternately. Once you press the Button below, the recording session",background_color="white",text_color="black")],
+           [sg.Text("The Classification Session will be used to test the trained classifier. During the classification session you will be asked to image a clench with your right or left hand. You decide with which hand you want to imagine the movement. After the imagination of the",background_color="white",text_color="black")],
+           [sg.Text("of the movement you need to label your movement. If you imagined a movement with your left hand press 'q',if you imagined the movement with your right hand press 'ü'. 10 Movements will be recorded for the test session. ",background_color="white",text_color="black")],
+           #[sg.Image(self.path+self.instructions[0])],
+           [sg.Button("Start Classification Session",button_color="orange",size=(30,2))],
+           ]
+        window = sg.Window("Classification Session EEG - Instructions", layout).Finalize()
         
         return window
 
@@ -83,6 +104,15 @@ class GUI:
             [sg.Image(self.path+self.training[7],key='-EEG-Training-')]
             ]    
         window = sg.Window("Training Session EEG - Recording", layout).Finalize()
+        
+        return window
+    
+    #Create Layout for EEG Classification Session
+    def make_classification_window_eeg(self):
+        layout = [
+            [sg.Image(self.path+self.training[7],key='-EEG-Classification-')]
+            ]    
+        window = sg.Window("Classification Session EEG - Recording", layout).Finalize()
         
         return window
         
