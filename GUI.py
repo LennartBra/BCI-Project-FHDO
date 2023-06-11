@@ -31,7 +31,8 @@ class GUI:
                          "TestSign1.png",
                          "TestSign2.png",
                          "TestSign3.png"]
-        self.pause = ["PauseSign.png"]
+        self.pause = ["PauseSign.png",
+                      "Pause_LabelSign.png"]
         self.instructions = ["Instructions_cut.png"]
         
     #################################################
