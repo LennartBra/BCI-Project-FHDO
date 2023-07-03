@@ -23,7 +23,7 @@ def process_ppgchunk(ppgchunk,PPG):
 
 #Function for filtering X
 def filter_X(X):
-    order = 9
+    order = 100
     CutOffF = 4
     SampleRate = 250
     b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
@@ -50,6 +50,14 @@ def meanfree_X(X):
         X_meanfree.append(X_temp)
     X_meanfree = np.array(X_meanfree)
     return X_meanfree 
+
+def plot_X(X,labels):
+    for i in range(0,len(X)):
+        plt.plot(range(0, len(X[i])),X[i],label = labels[i])
+    plt.xlabel('Sample')
+    plt.ylabel('Voltage in mV')
+    plt.legend()
+    plt.show()     
 
 def make_random_order(n_trials):
     order = []
@@ -97,7 +105,7 @@ class Data:
     
     #Define function to filter EEG
     def filterEEG(self):
-        order = 9
+        order = 8
         CutOffF = 4
         SampleRate = 250
         b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
@@ -144,11 +152,10 @@ class Data:
         Movement_Duration = 4
         for count, time_value in enumerate(time_stamps):
             X.append(self.data[:n_channels,time_value:time_value+OneSec*Movement_Duration])
-            print(count)
         X = np.array(X)
-        self.X = X
+        self.X = X.copy()
         y = np.array(y)
-        self.y = y
+        self.y = y.copy()
         return X, y
     
     #Function for making X_test and y_true
@@ -160,8 +167,9 @@ class Data:
         for count, time_value in enumerate(classification_time_stamps):
             X_test.append(self.data[:n_channels,time_value:time_value+OneSec*Movement_Duration])
         X_test = np.array(X_test)
-        self.X_test = X_test
+        self.X_test = X_test.copy()
         y_true = np.array(y_true)
-        self.y_true = y_true
+        self.y_true = y_true.copy()
         return X_test,y_true
+       
     
