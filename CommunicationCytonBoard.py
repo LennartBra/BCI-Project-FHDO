@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Communication.py
+
 Class for Communication with CytonBoard
 """
 

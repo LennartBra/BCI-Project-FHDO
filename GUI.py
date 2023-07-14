@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+GUI.py
+
 Class for GUI
 """
 #%%Import PySimpleGUI Package
@@ -54,7 +56,7 @@ class GUI:
                [sg.Button("Training Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
                [sg.Button("Classification Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
                [sg.Button("EXIT",button_color="red",size=(30,2),font=("Helvetica",11))]],
-               background_color = "white", element_justification="center"
+               background_color = "white", element_justification="center",justification="center"
                )]
                ]
         window = sg.Window("Main Window", layout,background_color="white").Finalize()
@@ -64,23 +66,32 @@ class GUI:
     #Create Layout for EEG Test Sequence
     def make_testsequence_window_eeg(self):
         layout = [
-            [sg.Image(self.path+self.play[0],key='-EEG-')]
-            ]    
+            [sg.Column([
+                [sg.Image(self.path+self.play[0],key='-EEG-')]],
+                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
+                )] 
+            ]
         window = sg.Window("Test Sequence EEG", layout, background_color="white").Finalize()
+        window.Maximize()
         
         return window
     
     #Create Layout for PPG Test Sequence
     def make_testsequence_window_ppg(self):
         layout = [
-            [sg.Image(self.path+self.play[0],key='-PPG-')]
-            ]    
+            [sg.Column([
+                [sg.Image(self.path+self.play[0],key='-PPG-')]],
+                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
+                )] 
+            ]
         window = sg.Window("Test Sequence PPG", layout, background_color="white").Finalize()
+        window.Maximize()
         
         return window
     
+    
     #Create Layout for EEG Training Session
-    def make_training_window_instructions_eeg(self):
+    def make_training_window_instructions_eeg2(self):
         layout = [
            [sg.Text("Instructions:",background_color="white",text_color="black",font=("Helvetica",20))],
            [sg.Text("This Brain Computer Interface application focuses on Motor Imagery Movement and has the target to distinguish between Motor Imagery Movement of the left and the right hand.",background_color="white",text_color="black",font=("Helvetica",11))],
@@ -100,7 +111,7 @@ class GUI:
         
         return window
     
-    def make_training_window_instructions_eeg2(self):
+    def make_training_window_instructions_eeg(self):
         Training_Column = [
             [sg.Text("Training Session",background_color="white",text_color="black",font=("Helvetica",25))],
             [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
@@ -116,17 +127,19 @@ class GUI:
             [sg.Text("GUI visualization:",background_color="white",text_color="black",font=("Helvetica",20))],
             [sg.Text("The GUI always visualizes which hand you have to use to make the clench. In the pictures below you can see an example of the visualization in the GUI.",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Image(self.path+self.instructions[0])],
+            [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Button("Start Training Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
             ]
         layout = [
-           [sg.Column(Training_Column,background_color="white",element_justification="center")],
+           [sg.Column(Training_Column,background_color="white",element_justification="center",justification="center")],
            ]
         window = sg.Window("Training Session EEG - Instructions", layout,background_color="white").Finalize()
+        window.Maximize()
         
         return window
     
     #Create Layout for EEG Classification Session
-    def make_classification_window_instructions_eeg(self):
+    def make_classification_window_instructions_eeg2(self):
         layout = [
            [sg.Text("Instructions:",background_color="white",text_color="black",font=("Helvetica",20))],
            [sg.Text("The Classification Session will be used to test the trained classifier. During the classification session you will be asked to image a clench with your right or left",background_color="white",text_color="black",font=("Helvetica",11))],
@@ -145,7 +158,7 @@ class GUI:
         return window
     
     #Create Layout for EEG Classification Session
-    def make_classification_window_instructions_eeg2(self):
+    def make_classification_window_instructions_eeg(self):
         Classification_Column = [
             [sg.Text("Classification Session",background_color="white",text_color="black",font=("Helvetica",25))],
             [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
@@ -159,30 +172,59 @@ class GUI:
             [sg.Text("GUI visualization:",background_color="white",text_color="black",font=("Helvetica",20))],
             [sg.Text("Down below you can see an example of the visualization for the tasks in the GUI. The visualization is similar to the Training Session.",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Image(self.path+self.instructions[1])],
+            [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Button("Start Classification Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
             ]
         layout = [
-           [sg.Column(Classification_Column,background_color="white",element_justification="center")],
+           [sg.Column(Classification_Column,background_color="white",justification="center",element_justification="center")],
            ]
         window = sg.Window("Classification Session EEG - Instructions", layout,background_color="white").Finalize()
-
-        return window
-
-    #Create Layout for EEG Training Session
-    def make_training_window_eeg(self):
-        layout = [
-            [sg.Image(self.path+self.training[7],key='-EEG-Training-')]
-            ]    
-        window = sg.Window("Training Session EEG - Recording", layout, background_color="white").Finalize()
+        window.Maximize()
         
         return window
+
+    
+    def make_training_window_eeg(self):
+        trial = 1
+        layout = [
+            [sg.Column([
+                [sg.Text("Trial:",background_color="white",text_color="black",font=("Helvetica",11)),sg.Text(trial,key ='Training-Trial',background_color="white",text_color="black",font=("Helvetica",11))],
+                [sg.Image(self.path+self.training[7],key='-EEG-Training-')]],
+                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
+                )]
+            ]    
+        window = sg.Window("Training Session EEG - Recording", layout, background_color="white").Finalize()
+        window.Maximize()
+        
+        return window
+    
+
+    def make_classification_window_eeg2(self):
+        start = 0
+        layout = [
+            [sg.Column([
+                [sg.Text("MI Left Hand:",background_color="white",text_color="black",font=("Helvetica",11)),sg.Text(start,key='Test-Trial-Left',background_color="white",text_color="black",font=("Helvetica",11))],
+                [sg.Text("MI Right Hand:",background_color="white",text_color="black",font=("Helvetica",11)),sg.Text(start,key='Test-Trial-Right',background_color="white",text_color="black",font=("Helvetica",11))],
+                [sg.Image(self.path+self.training[7],key='-EEG-Classification-')]],
+                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
+                )]
+            ]    
+        window = sg.Window("Classification Session EEG - Recording", layout, background_color="white").Finalize()
+        window.Maximize()
+        
+        return window
+
     
     #Create Layout for EEG Classification Session
     def make_classification_window_eeg(self):
         layout = [
-            [sg.Image(self.path+self.training[7],key='-EEG-Classification-')]
+            [sg.Column([
+                [sg.Image(self.path+self.training[7],key='-EEG-Classification-')]],
+                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
+                )]
             ]    
         window = sg.Window("Classification Session EEG - Recording", layout, background_color="white").Finalize()
+        window.Maximize()
         
         return window
     
@@ -214,6 +256,7 @@ class GUI:
                 [sg.Text("You have now completed the Classification Session. Down below you can see your Result for each test trial and the overall resulting Accuracy.",font=("Helvetica",11),background_color="white",text_color="black")],
                 [sg.Text("",background_color="white")],
                 [sg.Text("Trial results:",background_color="white",text_color="black",font=("Helvetica",14))],
+                [sg.Text("0 = Motor Imagery Movement of the left hand, 1 = Motor Imagery Movement of the right hand",font=("Helvetica",11),background_color="white",text_color="black")],
                 [sg.Column(Row_Names,background_color="white",element_justification="center"),
                  sg.VSeperator(),
                  sg.Column(Result_Column,background_color="white")],

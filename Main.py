@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Main.py
+
 Main script for Data Acquisition
 """
 
@@ -31,9 +33,10 @@ import random
 
 
 #Set variables for Training and Classification
-Movement_Duration = 4 #Time to execute movement/ imagine movement
-Training_Trials = 20 #50 in total, 25 per side
-Test_Trials = 10
+Stabilization_Time = 30 #Time for EEG to stabilize --> 30 seconds
+Movement_Duration = 4 #Time in seconds to execute/imagine movement
+Training_Trials = 60 #60 in total, 30 per side
+Test_Trials = 15 #10 Test Trials in total
 OneSec = 250 
 
 #Create Object of Class GUI
@@ -67,19 +70,20 @@ while True:
         #Create Arrays for EEG_Data
         eegchunk = []
         EEG = []
+        
         #Create TestSequence Window
         window_testsequence_eeg = GUI.make_testsequence_window_eeg()
-              
+        
         ###################
         # Start Algorithm #
         ###################
-        while True:            
+        while True:     
             #Monitoring window status
-            event_testsequence_eeg , values_testsequence_eeg = window_testsequence_eeg.read(timeout=4)
+            event_testsequence_eeg, values_testsequence_eeg = window_testsequence_eeg.read(timeout=4)
             #Check Sample Count in Ringbuffer
             buffer_count = CytonBoard.get_board_data_count()
             
-            if event_testsequence_eeg == sg.WIN_CLOSED or len(EEG) > 5000:
+            if event_testsequence_eeg == sg.WIN_CLOSED or len(EEG) > 10000:
                 #Stop Data Stream
                 CCB.stopDataStream(CytonBoard)
                 #Reset event_testsequence 
@@ -95,11 +99,11 @@ while True:
                 
                 break
             
-            if len(EEG) > 4250:
+            if len(EEG) > 9250:
                 window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[3])
-            if len(EEG) > 4500:
+            if len(EEG) > 9500:
                 window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[2])
-            if len(EEG) > 4750:
+            if len(EEG) > 9750:
                 window_testsequence_eeg["-EEG-"].update(filename=GUI.path+GUI.play[1])
                 
             #Load data from Ringbuffer
@@ -111,6 +115,7 @@ while True:
                 #print("Laenge Chunk",len(eegchunk[0]),"Buffer Count",buffer_count)
                 #Save eegchunk in EEG
                 EEG = PD.process_eegchunk(eegchunk,EEG)
+                print(len(EEG))
                 
     if event_menu == "Test Sequence PPG":     
         #Initialize Cyton Board and get channels
@@ -138,7 +143,7 @@ while True:
             #Check Sample Count in Ringbuffer
             buffer_count = CytonBoard.get_board_data_count()
             
-            if event_testsequence_ppg == sg.WIN_CLOSED or len(PPG) > 2500:
+            if event_testsequence_ppg == sg.WIN_CLOSED or len(PPG) > 10000:
                 #Stop Data Stream
                 CCB.stopDataStream(CytonBoard)
                 #Reset event_testsequence 
@@ -156,11 +161,11 @@ while True:
                 
                 break
             
-            if len(PPG) > 1750:
+            if len(PPG) > 9250:
                 window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[3])
-            if len(PPG) > 2000:
+            if len(PPG) > 9500:
                 window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[2])
-            if len(PPG) > 2250:
+            if len(PPG) > 9750:
                 window_testsequence_ppg["-PPG-"].update(filename=GUI.path+GUI.play[1])
                 
             #Load data from Ringbuffer
@@ -177,7 +182,7 @@ while True:
         #Close Main Window
         window_menu.close()
         #Create Instruction Window for Training Session
-        training_window_instructions = GUI.make_training_window_instructions_eeg2()
+        training_window_instructions = GUI.make_training_window_instructions_eeg()
             
         #Create Arrays for EEG_Data
         eegchunk = []
@@ -236,7 +241,7 @@ while True:
                 EEG = PD.process_eegchunk(eegchunk,EEG)
                 EEG_temp = PD.process_eegchunk(eegchunk,EEG_temp)
             
-            if StabilizedData == False and len(EEG_temp) > OneSec * 30:
+            if StabilizedData == False and len(EEG_temp) > OneSec * Stabilization_Time:
                 StabilizedData = True
                 EEG_temp = []
                 
@@ -270,6 +275,7 @@ while True:
                 EEG_temp = []
                 training_window["-EEG-Training-"].update(filename=GUI.path+GUI.pause[0])
                 n = n+1
+                training_window['Training-Trial'].update(n+1)
                 TimeStampCheck = False
             
         
@@ -305,7 +311,7 @@ while True:
                 EEG = np.array(EEG)
                 EEG_Training_Raw = np.transpose(EEG)
                 #Process Data
-                channels = ["FC1","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
+                channels = ["FC5","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
                 EEG_Training = Data(EEG_Training_Raw,channels)
                 #Filter EEG
                 EEG_Training.filterEEG()
@@ -316,7 +322,7 @@ while True:
                 #Define Classifier
                 classifier = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
                 #Define xDawn algorithm
-                xdawn = XdawnCovariances(2,estimator="lwf",xdawn_estimator = "lwf")
+                xdawn = XdawnCovariances(1,estimator="lwf",xdawn_estimator = "lwf")
                 #Transform data with Xdawn
                 X_transformed_dawn = xdawn.fit_transform(X,y)
                 #Vectorize Data
@@ -348,7 +354,7 @@ while True:
         #Close Main Window
         window_menu.close()
         #Create Instruction Window for Classification Session
-        classification_window_instructions = GUI.make_classification_window_instructions_eeg2()
+        classification_window_instructions = GUI.make_classification_window_instructions_eeg()
 
         #Create Arrays for EEG_Data
         eegchunk = []
@@ -358,6 +364,8 @@ while True:
         classification_labels = []
         TimeStampCheck = False
         n = 0
+        Test_Trial_Left = 0
+        Test_Trial_Right = 0
         classification_instruction_window_status = False
         result_window_status = False
         StabilizedData = False
@@ -388,7 +396,7 @@ while True:
         CCB.startDataStream(CytonBoard,"EEG")
         
         #Create Recording Window
-        classification_window = GUI.make_classification_window_eeg()
+        classification_window = GUI.make_classification_window_eeg2()
         
         while True:
             #Monitoring Window Status
@@ -407,7 +415,7 @@ while True:
                 EEG_temp = PD.process_eegchunk(eegchunk,EEG_temp)
             
             #Check if Data has stabilized --> stabilized after 30 secs
-            if StabilizedData == False and len(EEG_temp) > OneSec * 30:
+            if StabilizedData == False and len(EEG_temp) > OneSec * Stabilization_Time:
                 StabilizedData = True
                 EEG_temp = []
             
@@ -427,11 +435,15 @@ while True:
                 if keyboard.is_pressed("q"):
                     classification_labels.append(0)
                     n = n+1
+                    Test_Trial_Left = Test_Trial_Left + 1
+                    classification_window['Test-Trial-Left'].update(Test_Trial_Left)
                     TimeStampCheck = False
                     EEG_temp = []
                 elif keyboard.is_pressed("ü"):
                     classification_labels.append(1)
                     n = n+1
+                    Test_Trial_Right = Test_Trial_Right + 1
+                    classification_window['Test-Trial-Right'].update(Test_Trial_Right)
                     TimeStampCheck = False
                     EEG_temp = []
                        
@@ -471,7 +483,7 @@ while True:
                 EEG = np.array(EEG)
                 EEG_Test_Raw = np.transpose(EEG)
                 #Process Data
-                channels = ["FC1","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
+                channels = ["FC5","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
                 EEG_Test = Data(EEG_Test_Raw,channels)
                 #Filter Test Data
                 EEG_Test.filterEEG()
@@ -508,7 +520,7 @@ while True:
             
         
 #%%Process EEG Data
-channels = ["FC1","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
+channels = ["FC5","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
 EEG_TestAufnahme = Data(EEG,channels)
 EEG_TestAufnahme.plot_EEG_data()
 
@@ -520,14 +532,15 @@ PPG_TestSequence.filterPPG()
 PPG_TestSequence.plot_PPG_data()
 
 #%% Training Session
-channels = ["FC1","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
+channels = ["FC5","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
 EEG_Training = Data(EEG_Training_Raw,channels) 
 
 
 EEG_Training.filterEEG()
 
-EEG_Training.mean_free_EEG()
-#EEG_Training.standardize_EEG()
+#EEG_Training.mean_free_EEG()
+
+EEG_Training.standardize_EEG()
 #EEG_Training.filterEEG()
 
 
@@ -545,6 +558,12 @@ classifier3 = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
 xdawn = XdawnCovariances(1,estimator="lwf",xdawn_estimator = "lwf")
 xdawn2 = XdawnCovariances(2,estimator="lwf",xdawn_estimator = "lwf")
 xdawn3 = XdawnCovariances(5,estimator="lwf",xdawn_estimator = "lwf")
+
+'''
+xdawn = XdawnCovariances()
+xdawn.fit(X_standardized,y)
+X_transformed_dawn = xdawn.transform(X_standardized)
+'''
 
 X_transformed_dawn = xdawn.fit_transform(X_standardized,y)
 X_transformed_dawn2 = xdawn2.fit_transform(X_standardized,y)
@@ -564,8 +583,8 @@ EEG_Test = Data(EEG_Test_Raw,channels)
 
 EEG_Test.filterEEG()
 
-EEG_Test.mean_free_EEG()
-#EEG_Test.standardize_EEG()
+#EEG_Test.mean_free_EEG()
+EEG_Test.standardize_EEG()
 #EEG_Test.filterEEG()
 
 X_test, y_true = EEG_Test.make_Xtest_and_ytrue(classification_time_stamps, classification_labels)
@@ -590,31 +609,21 @@ y_pred3 = classifier3.predict(X_test_transformed3)
 Accuracy3 = accuracy_score(y_true,y_pred3)
 
 #%% Plot erstellen
-#EEG_Training.plot_EEG_data()
-#EEG_Test.plot_EEG_data()
-PD.plot_X(X_test_transformed,training_labels)
-
-#%%
-channels = ["FC1","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
-EEG_Training = Data(EEG_Training_Raw,channels) 
-
-
-EEG_Training.filterEEG()
-
-#EEG_Training.mean_free_EEG()
-EEG_Training.standardize_EEG()
-#EEG_Training.filterEEG()
-
-TestSignal = EEG_Training.data.copy()
-TestSignal = np.array(TestSignal)
-TestMean = np.std(TestSignal,axis=1)
+plt.figure()
+EEG_Training.plot_EEG_data()
+plt.figure()
+EEG_Test.plot_EEG_data()
+#PD.plot_X(X_test_transformed,classification_labels)
+plt.figure()
+PD.plot_X_onecolor(X_transformed,training_labels)
+plt.figure()
+PD.plot_X_onecolor(X_test_transformed,classification_labels)
 
 
 
 
 
-
-#%%
+#%% Test Result Window
 #Create Result Window
 result_window = GUI.make_result_window(y_true, y_pred, Acc)
 
@@ -628,7 +637,6 @@ while True:
     if event_result_window == sg.WIN_CLOSED:
         result_window.close()
         break
-    
 
 
 
@@ -636,31 +644,3 @@ while True:
 
 
 
-
-#%% Test Section
-def standardize_X(X):
-    X_standardized = []
-    for i in range(0,len(X)):
-        X_temp = X[i].copy()
-        for i in range(0,len(X_temp)):
-            X_temp[i] = (X_temp[i] - np.mean(X_temp[i])) / np.std(X_temp[i])
-        X_standardized.append(X_temp)
-    X_standardized = np.array(X_standardized)
-    return X_standardized  
-  
-
-def standardize_X_manually(X):
-    X_standardized = []
-    temp = []
-    StandardizedValue = 0
-    for i in range(0,len(X)):
-        X_temp = X[i].copy()
-        Means = np.mean(X_temp, axis=1)
-        Stds = np.std(X_temp, axis=1)
-        for j in range(0,len(X_temp)):
-            for l in range(0,500):
-                StandardizedValue = (X_temp[j,l] - np.mean(X_temp[j])) / np.std(X_temp[j])
-                temp.append(StandardizedValue)
-            X_standardized.append(temp)
-            temp = []
-    return X_standardized

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+ProcessData.py
+
 Class for Data - Process data
 """
 #%% Import Packages
@@ -58,6 +60,17 @@ def plot_X(X,labels):
     plt.ylabel('Voltage in mV')
     plt.legend()
     plt.show()     
+    
+def plot_X_onecolor(X,labels):
+    for i in range(0,len(X)):
+        if labels[i] == 0:
+            plt.plot(range(0, len(X[i])),X[i],color='blue')
+        else:
+            plt.plot(range(0, len(X[i])),X[i],color='red')
+    plt.xlabel('Sample')
+    plt.ylabel('Voltage in mV')
+    #plt.legend()
+    plt.show()     
 
 def make_random_order(n_trials):
     order = []
@@ -77,6 +90,7 @@ class Data:
     #Create Object of Class Data
     def __init__(self,data,channels):
         self.data = data.copy()
+        self.EEG_filtered = []
         self.channels = channels
         self.X = []
         self.y = []
@@ -87,6 +101,7 @@ class Data:
     
     #Define function to plot EEG data
     def plot_EEG_data(self):
+        n_channels = 6
         for i in range(0,n_channels):
             plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
         plt.xlabel('Sample')
@@ -105,12 +120,34 @@ class Data:
     
     #Define function to filter EEG
     def filterEEG(self):
-        order = 8
-        CutOffF = 4
         SampleRate = 250
-        b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
-        EEG_filtered = signal.lfilter(b,a,self.data)
+        lowcut = 0.5
+        highcut = 4
+        order = 1000
+        CutOff = [lowcut, highcut]
+        
+        #b_but, a_but = signal.butter(order, CutOff,btype="band",analog=False,fs=SampleRate)
+        b_fir = signal.firwin(order, [lowcut, highcut], fs=SampleRate, pass_zero=False)
+        #b_cheby, a_cheby = signal.cheby1(order,25, CutOff,btype="bandpass",fs=SampleRate)
+        #w, h = signal.freqz(b_but,a_but,fs=250,worN=2000)
+        w, h = signal.freqz(b_fir,1,fs=250,worN=2000)
+        #w2, h2 = signal.freqz(b_cheby,a_cheby,fs=250,worN=2000)
+        
+        #Normal Plot
+        #plt.figure()
+        #plt.plot(w, abs(h))
+        #plt.figure()
+        #plt.plot(w2, abs(h2))
+        '''
+        #DB Plot
+        plt.figure()
+        plt.semilogx(w, 20 * np.log10(abs(h)))
+        plt.figure()
+        plt.semilogx(w2, 20 * np.log10(abs(h2)))
+        '''
+        EEG_filtered = signal.filtfilt(b_fir,1,self.data)
         self.data = EEG_filtered
+        self.EEG_filtered = EEG_filtered
     
     #Define Function to filter PPG
     def filterPPG(self):
