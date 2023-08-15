@@ -7,6 +7,7 @@ Class for Communication with CytonBoard
 
 #%%Import Packages
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+import time
 
 
 #%%Define Functions for Communication with CytonBoard
@@ -41,13 +42,22 @@ def startDataStream(board,session):
     board.prepare_session()
     #Configure Board Pins for session
     if session == "EEG":
-        board.config_board("/0")
-        BoardMode = board.config_board("//")
+        board.config_board("//")
+        BoardMode = board.config_board("/")
         print(BoardMode)
     elif session == "PPG":
         board.config_board("/2")
-        BoardMode = board.config_board("//")
+        BoardMode = board.config_board("/")
         print(BoardMode)
+    elif session == 'Impedance':
+        Version = board.config_board("V")
+        print(Version)
+        #Configure Board for Impedance Measurement
+        board.config_board("z 2 0 1 Z")
+        time.sleep(1)
+        BoardMode = "Impedance Check"
+        print(BoardMode)
+        
     #Start Data Stream of Cyton Board into Ringbuffer
     board.start_stream()
     
@@ -56,4 +66,5 @@ def stopDataStream(board):
     board.stop_stream()
     #Release all Ressources
     board.release_session()
+    
     

@@ -23,35 +23,47 @@ def process_ppgchunk(ppgchunk,PPG):
         PPG.append((ppgchunk[:,i]).tolist())
     return PPG
 
-#Function for filtering X
-def filter_X(X):
-    order = 100
-    CutOffF = 4
-    SampleRate = 250
-    b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
-    X_filtered = signal.lfilter(b,a,X.copy())
-    return X_filtered
+def make_random_order(n_trials):
+    order = []
+    for i in range(0,n_trials):
+        if i % 2 == 0:
+            order.append(0)
+        else:
+            order.append(1)
+    order = np.array(order)       
+    random.shuffle(order)
+    
+    return order    
 
-#Function for standardizing X
-def standardize_X(X):
-    X_standardized = []
-    for i in range(0,len(X)):
-        X_temp = X[i].copy()
-        for i in range(0,len(X_temp)):
-            X_temp[i] = (X_temp[i] - np.mean(X_temp[i])) / np.std(X_temp[i])
-        X_standardized.append(X_temp)
-    X_standardized = np.array(X_standardized)
-    return X_standardized  
+def process_Training_Session(Session,time_stamps,channels):
+    #Create Data Objects
+    EEG_Training = Data(Session,channels)
+    
+    #Filter EEG
+    EEG_Training.filterEEG()
+    
+    #Meanfree EEG
+    EEG_Training.mean_free_EEG()
+    
+    X = make_X(EEG_Training.EEG_processed,time_stamps)
+    #X = make_X(EEG_Training.EEG_filtered,time_stamps)
+    
+    return EEG_Training, X
 
-def meanfree_X(X):
-    X_meanfree = []
-    for i in range(0,len(X)):
-        X_temp = X[i].copy()
-        for i in range(0,len(X_temp)):
-            X_temp[i] = (X_temp[i] - np.mean(X_temp[i]))
-        X_meanfree.append(X_temp)
-    X_meanfree = np.array(X_meanfree)
-    return X_meanfree 
+
+
+#Function for making X
+def make_X(Processed_Data, time_stamps):
+    X = []
+    OneSec = 250
+    Movement_Duration = 4
+    
+    for count, time_value in enumerate(time_stamps):
+        X.append(Processed_Data[:n_channels,time_value:time_value+OneSec*Movement_Duration])
+        
+    X = np.array(X)
+    
+    return X
 
 def plot_X(X,labels):
     for i in range(0,len(X)):
@@ -70,49 +82,40 @@ def plot_X_onecolor(X,labels):
     plt.xlabel('Sample')
     plt.ylabel('Voltage in mV')
     #plt.legend()
-    plt.show()     
+    plt.show() 
 
-def make_random_order(n_trials):
-    order = []
-    for i in range(0,n_trials):
-        if i % 2 == 0:
-            order.append(0)
-        else:
-            order.append(1)
-    order = np.array(order)       
-    random.shuffle(order)
-    
-    return order
-    
 #%% Class Definition Data
 class Data:
     
     #Create Object of Class Data
     def __init__(self,data,channels):
+        #Raw EEG/PPG
         self.data = data.copy()
+        #Filtered EEG
         self.EEG_filtered = []
+        #Filtered PPG
+        self.PPG_filtered = []
+        #Processed EEG --> Standardized or Meanfree
+        self.EEG_processed = []
+        #Used EEG channels for recording
         self.channels = channels
-        self.X = []
-        self.y = []
-        self.X_test = []
-        self.y_test = []
+        
         global n_channels
         n_channels = 6
     
     #Define function to plot EEG data
-    def plot_EEG_data(self):
+    def plot_EEG_data(self, DataArray):
         n_channels = 6
         for i in range(0,n_channels):
-            plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+            plt.plot(range(0, len(DataArray[i])),DataArray[i],label = self.channels[i])
         plt.xlabel('Sample')
         plt.ylabel('Voltage in mV')
         plt.legend()
         plt.show()
     
     #Define function to plot PPG data
-    def plot_PPG_data(self):
-        i = 1
-        plt.plot(range(0, len(self.data[i])),self.data[i],label = self.channels[i])
+    def plot_PPG_data(self, DataArray):
+        plt.plot(range(0, len(DataArray)),DataArray)
         plt.xlabel('Sample')
         plt.ylabel('Absorption of light')
         plt.legend()
@@ -120,34 +123,42 @@ class Data:
     
     #Define function to filter EEG
     def filterEEG(self):
+        
         SampleRate = 250
         lowcut = 0.5
         highcut = 4
         order = 1000
-        CutOff = [lowcut, highcut]
+        CutOffF = 4
         
         #b_but, a_but = signal.butter(order, CutOff,btype="band",analog=False,fs=SampleRate)
         b_fir = signal.firwin(order, [lowcut, highcut], fs=SampleRate, pass_zero=False)
         #b_cheby, a_cheby = signal.cheby1(order,25, CutOff,btype="bandpass",fs=SampleRate)
+        #b_fir = signal.firwin(order,CutOffF,fs=SampleRate)
         #w, h = signal.freqz(b_but,a_but,fs=250,worN=2000)
         w, h = signal.freqz(b_fir,1,fs=250,worN=2000)
         #w2, h2 = signal.freqz(b_cheby,a_cheby,fs=250,worN=2000)
         
-        #Normal Plot
-        #plt.figure()
-        #plt.plot(w, abs(h))
-        #plt.figure()
-        #plt.plot(w2, abs(h2))
         '''
-        #DB Plot
+        fs = 250
+        nyq = 0.5 * fs
+        CutOffFrequency = 4
+        order = 55
+        CutOff = 4 / nyq
+
+        b_fir = signal.firwin(order,CutOff)
+        
+        
+        w, h = signal.freqz(b_fir,1,fs=250,worN=2000)
+        plt.figure()
+        plt.plot(w, abs(h))
+        plt.title('b,a Filter')
         plt.figure()
         plt.semilogx(w, 20 * np.log10(abs(h)))
-        plt.figure()
-        plt.semilogx(w2, 20 * np.log10(abs(h2)))
         '''
+        
         EEG_filtered = signal.filtfilt(b_fir,1,self.data)
-        self.data = EEG_filtered
-        self.EEG_filtered = EEG_filtered
+        #self.data = EEG_filtered
+        self.EEG_filtered = EEG_filtered.copy()
     
     #Define Function to filter PPG
     def filterPPG(self):
@@ -156,16 +167,19 @@ class Data:
         SampleRate = 250
         b, a = signal.butter(order, CutOffF,btype="low",analog=False,fs=SampleRate) 
         PPG_filtered = signal.lfilter(b,a,self.data[1])
-        self.data[1] = PPG_filtered
+        #self.data[1] = PPG_filtered
+        PPG_filtered = np.array(PPG_filtered)
+        self.PPG_filtered = PPG_filtered
         
     def standardize_EEG(self):
+        self.EEG_processed =  np.zeros(np.shape(self.EEG_filtered))
         for i in range(0,len(self.data)):
-            self.data[i] = (self.data[i] - np.mean(self.data[i])) / np.std(self.data[i])
+            self.EEG_processed[i] = (self.EEG_filtered[i] - np.mean(self.EEG_filtered[i])) / np.std(self.EEG_filtered[i])
     
     def mean_free_EEG(self):
+        self.EEG_processed = np.zeros(np.shape(self.EEG_filtered))
         for i in range(0,len(self.data)):
-            self.data[i] = self.data[i] - np.mean(self.data[i])
-        
+            self.EEG_processed[i] = self.EEG_filtered[i] - np.mean(self.EEG_filtered[i])
         
         #Define function to plot all PPG channels
     def plot_PPG_data_AllChannels(self):
@@ -190,10 +204,11 @@ class Data:
         for count, time_value in enumerate(time_stamps):
             X.append(self.data[:n_channels,time_value:time_value+OneSec*Movement_Duration])
         X = np.array(X)
-        self.X = X.copy()
+        #self.X = X.copy()
         y = np.array(y)
-        self.y = y.copy()
+        #self.y = y.copy()
         return X, y
+    
     
     #Function for making X_test and y_true
     def make_Xtest_and_ytrue(self,classification_time_stamps,classification_labels):
@@ -202,11 +217,12 @@ class Data:
         OneSec = 250
         Movement_Duration = 4
         for count, time_value in enumerate(classification_time_stamps):
-            X_test.append(self.data[:n_channels,time_value:time_value+OneSec*Movement_Duration])
+            X_test.append(self.EEG_processed[:n_channels,time_value:time_value+OneSec*Movement_Duration])
+            #X_test.append(self.EEG_filtered[:n_channels,time_value:time_value+OneSec*Movement_Duration])
         X_test = np.array(X_test)
-        self.X_test = X_test.copy()
+        #self.X_test = X_test.copy()
         y_true = np.array(y_true)
-        self.y_true = y_true.copy()
+        #self.y_true = y_true.copy()
         return X_test,y_true
        
     
