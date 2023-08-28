@@ -58,55 +58,6 @@ while True:
         event_menu = None
         
         break
-    if event_menu == "Impedance Check":
-        #Initialize Cyton Board and get channels
-        CytonBoard, eeg_chan, ppg_chan = CCB.init_CytonBoard()
-        #Start Data Stream
-        CCB.startDataStream(CytonBoard,"Impedance")
-        
-        #Close Main Window
-        window_menu.close()
-        
-        #Create Arrays for EEG_Data
-        eegchunk = []
-        EEG = []
-        
-        impedance_window = GUI.make_impedance_window()
-        
-        while True:
-            #Monitoring window status
-            event_impedance_eeg, values_impedance_eeg = impedance_window.read(timeout=4)
-            #Check Sample Count in Ringbuffer
-            buffer_count = CytonBoard.get_board_data_count()
-            
-            #Load data from Ringbuffer
-            if buffer_count > 50:
-                #Get Board data from ringbuffer and delete ringbuffer
-                data = CytonBoard.get_board_data()
-                #Load data Chunk into eegchunk
-                eegchunk = data[eeg_chan]
-                #Save eegchunk in EEG
-                EEG = PD.process_eegchunk(eegchunk,EEG)
-             
-            if event_impedance_eeg == sg.WIN_CLOSED or len(EEG) > 5000:
-                #Stop Data Stream
-                CCB.stopDataStream(CytonBoard)
-                #Reset event_testsequence 
-                event_impedance_eeg = None
-                #Close Test Sequence Window
-                impedance_window.close()
-                #Create Main Window
-                window_menu = GUI.make_window_menu()
-                event_menu, values_menu = window_menu.read()
-                #Make EEG NumPy Array --> Rows = , Channels =
-                EEG = np.array(EEG)
-                EEG_Impedance = np.transpose(EEG)
-                EEG_Channel = EEG_Impedance[1].copy()
-                
-                plt.figure()
-                plt.plot(range(0,len(EEG_Channel)),EEG_Channel)
-                
-                break
                 
     if event_menu == "Test Sequence EEG":
         #Initialize Cyton Board and get channels
@@ -629,7 +580,7 @@ while True:
                        
             
             
-            if event_classification_window == sg.WIN_CLOSED: #or n == Test_Trials:
+            if event_classification_window == sg.WIN_CLOSED:
                 #Stop Data Stream
                 CCB.stopDataStream(CytonBoard)
                 #Reset event_training_window 
@@ -681,6 +632,8 @@ while True:
                 Acc = accuracy_score(y_true,y_pred)
                 #Create Result Window
                 result_window = GUI.make_result_window(y_true, y_pred, Acc)
+                #Make Result Plot
+                PD.make_Result_plot(X_transformed, training_labels, X_test_transformed, classification_labels)
                 
                 while True:
                     #Monitoring window status
@@ -711,6 +664,15 @@ PPG_TestSequence = Data(PPG_Test_Sequence,channels)
 PPG_TestSequence.filterPPG()
 PPG_TestSequence.plot_PPG_data(PPG_TestSequence.PPG_filtered)
 
+
+
+
+
+
+
+###############################################################################
+#################################Test Section##################################
+###############################################################################
 #%% Training Session
 #Process Training Sessions
 channels = ["FC5","C3","FC1", "FC2", "C4", "FC6", "/", "/"]
@@ -782,6 +744,7 @@ X_test_transformed3 = vc.fit_transform(X_test_transformed_dawn3)
 y_pred3 = classifier3.predict(X_test_transformed3)
 Accuracy3 = accuracy_score(y_true,y_pred3)
 
+
 #%% Plot erstellen
 #plt.figure()
 #EEG_Session1.plot_EEG_data(EEG_Session1.EEG_filtered)
@@ -794,48 +757,9 @@ EEG_Session3.plot_EEG_data(EEG_Session3.EEG_processed)
 plt.figure()
 EEG_Test.plot_EEG_data(EEG_Test.EEG_processed)
 plt.figure()
-PD.plot_X_onecolor(X_transformed,training_labels)
+PD.plot_X_i(X_transformed,training_labels)
 plt.figure()
-PD.plot_X_onecolor(X_test_transformed,classification_labels)
+PD.plot_X_i(X_test_transformed,classification_labels)
 
-
-#%% Impedance Check
-EEG_Channel = EEG_Impedance[1].copy()
-SampleRate = 250
-lowcut = 25
-highcut = 40
-order = 1000
-
-b_fir = signal.firwin(order, [lowcut, highcut], fs=SampleRate, pass_zero=False)
-EEG_Channel_filtered = signal.filtfilt(b_fir,1,EEG_Channel)
-
-EEG_Channel_filtered_OneSec = EEG_Channel_filtered[-1500:-1250]
-EEG_Channel_FFT_filtered = scipy.fft.fft(EEG_Channel_filtered_OneSec)
-EEG_Channel_FFT = scipy.fft.fft(EEG_Channel[-1500:-1250])
-
-
-#EEG_Channel_FFT = scipy.fft.fft(EEG_Channel_filtered)
-F = 250
-T = 1/F
-N = len(EEG_Channel_FFT)
-x = np.linspace(0,N*T,N,endpoint=False)
-xf = scipy.fft.fftfreq(N,T)[:N//2]
-
-plt.figure()
-plt.plot(xf,abs(EEG_Channel_FFT_filtered[:N//2]))
-plt.title("Gefiltertes EEG")
-
-
-plt.figure()
-plt.plot(xf,abs(EEG_Channel_FFT[:N//2]))
-plt.title("Ungefiltertes EEG")
-
-
-plt.figure()
-plt.plot(range(0,len(EEG_Channel_filtered)),EEG_Channel_filtered)
-
-Std_EEG_Channel = np.std(EEG_Channel)
-
-impedance = (np.sqrt(2) * Std_EEG_Channel * 1*10e-6) / 6*10e-9
-print(impedance)
-impedance = impedance - 2200
+#%%Result Plot
+PD.make_Result_plot(X_transformed, training_labels, X_test_transformed, classification_labels)

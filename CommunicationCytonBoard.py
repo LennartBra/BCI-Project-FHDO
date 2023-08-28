@@ -49,14 +49,6 @@ def startDataStream(board,session):
         board.config_board("/2")
         BoardMode = board.config_board("/")
         print(BoardMode)
-    elif session == 'Impedance':
-        Version = board.config_board("V")
-        print(Version)
-        #Configure Board for Impedance Measurement
-        board.config_board("z 2 0 1 Z")
-        time.sleep(1)
-        BoardMode = "Impedance Check"
-        print(BoardMode)
         
     #Start Data Stream of Cyton Board into Ringbuffer
     board.start_stream()

@@ -46,11 +46,8 @@ def process_Training_Session(Session,time_stamps,channels):
     EEG_Training.mean_free_EEG()
     
     X = make_X(EEG_Training.EEG_processed,time_stamps)
-    #X = make_X(EEG_Training.EEG_filtered,time_stamps)
     
     return EEG_Training, X
-
-
 
 #Function for making X
 def make_X(Processed_Data, time_stamps):
@@ -65,7 +62,7 @@ def make_X(Processed_Data, time_stamps):
     
     return X
 
-def plot_X(X,labels):
+def plot_X_different_color(X,labels):
     for i in range(0,len(X)):
         plt.plot(range(0, len(X[i])),X[i],label = labels[i])
     plt.xlabel('Sample')
@@ -73,7 +70,7 @@ def plot_X(X,labels):
     plt.legend()
     plt.show()     
     
-def plot_X_onecolor(X,labels):
+def plot_X_i(X,labels):
     for i in range(0,len(X)):
         if labels[i] == 0:
             plt.plot(range(0, len(X[i])),X[i],color='blue')
@@ -83,6 +80,25 @@ def plot_X_onecolor(X,labels):
     plt.ylabel('Voltage in mV')
     #plt.legend()
     plt.show() 
+    
+def make_Result_plot(X_training, training_labels, X_test, classification_labels):
+    fig, (ax1,ax2) = plt.subplots(1,2)
+    for i in range(0,len(X_training)):
+        if training_labels[i] == 0:
+            ax1.plot(range(0, len(X_training[i])),X_training[i],color='blue')
+        else:
+            ax1.plot(range(0, len(X_training[i])),X_training[i],color='red')
+    ax1.set_title('Trainingsdaten')
+    for i in range(0,len(X_test)):
+        if classification_labels[i] == 0:
+            ax2.plot(range(0, len(X_test[i])),X_test[i],color='blue')
+        else:
+            ax2.plot(range(0, len(X_test[i])),X_test[i],color='red')
+    ax2.set_title('Testdaten')
+    ax1.set(xlabel='x',ylabel='Volatge in mV')
+    ax2.set(xlabel='x',ylabel='Volatge in mV')
+    fig.suptitle('Result Plot')
+    plt.show()
 
 #%% Class Definition Data
 class Data:

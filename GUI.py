@@ -51,7 +51,6 @@ class GUI:
                [sg.Text("BCI Demonstrator for Motor Imagery",justification="center",background_color="white",text_color="black",font=("Helvetica",16))],
                [sg.Text("",justification="center",background_color="white",text_color="black",font=("Helvetica",11))],
                [sg.Text("Please choose a Session:",justification="center",background_color="white",text_color="black",font=("Helvetica",11))],
-               [sg.Button("Impedance Check",button_color="orange",size=(30,2),font=("Helvetica",11))],
                [sg.Button("Test Sequence EEG",button_color="orange",size=(30,2),font=("Helvetica",11))],
                [sg.Button("Test Sequence PPG",button_color="orange",size=(30,2),font=("Helvetica",11))],
                [sg.Button("Training Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
@@ -61,19 +60,6 @@ class GUI:
                )]
                ]
         window = sg.Window("Main Window", layout,background_color="white").Finalize()
-        
-        return window
- 
-    #Create Layout for Impedance Check
-    def make_impedance_window(self):
-        layout = [
-            [sg.Column([
-                [sg.Image(self.path+self.play[0],key='-Impedance-')]],
-                background_color = "white",vertical_alignment='center', element_justification="center",justification="center"
-                )] 
-            ]
-        window = sg.Window("Impedance Check", layout, background_color="white").Finalize()
-        window.Maximize()
         
         return window
     
@@ -120,7 +106,7 @@ class GUI:
             [sg.Text("of the clench with the predetermined hand. After each MIM you get a pause of 4 seconds and then the countdown for the next trial starts.",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Text("GUI visualization:",background_color="white",text_color="black",font=("Helvetica",20))],
-            [sg.Text("The GUI always visualizes which hand you have to use to make the clench. In the pictures below you can see an example of the visualization in the GUI.",background_color="white",text_color="black",font=("Helvetica",11))],
+            [sg.Text("The GUI always visualizes which hand you have to use to imagine the clench. In the pictures below you can see an example of the visualization in the GUI.",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Image(self.path+self.instructions[0])],
             [sg.Text("",background_color="white",text_color="black",font=("Helvetica",11))],
             [sg.Button("Start Training Session",button_color="orange",size=(30,2),font=("Helvetica",11))],
